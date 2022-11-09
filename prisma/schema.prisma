@@ -41,6 +41,7 @@ model Transaction {
   amount     Float?
   currency   String?
   date       DateTime?
+  category   String?
 }
 
 model Account {

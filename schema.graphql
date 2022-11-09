@@ -2,6 +2,18 @@
 ### Do not make changes to this file directly
 
 
+type Account {
+  bank: String
+  id: String!
+  name: String
+}
+
+type Category {
+  color: String
+  id: String!
+  name: String
+}
+
 """
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -36,7 +48,10 @@ input PostOrderByUpdatedAtInput {
 }
 
 type Query {
-  allUsers: [User!]!
+  allAccounts(skip: Int, take: Int): [Account!]!
+  allCategories(skip: Int, take: Int): [Category!]!
+  allTransactions(searchAll: String, skip: Int, take: Int): [Transaction!]!
+  allUsers(nameFilter: String, skip: Int, take: Int): [User!]!
   draftsByUser(userUniqueInput: UserUniqueInput!): [Post]
   feed(orderBy: PostOrderByUpdatedAtInput, searchString: String, skip: Int, take: Int): [Post!]!
   postById(id: Int): Post
@@ -47,11 +62,21 @@ enum SortOrder {
   desc
 }
 
+type Transaction {
+  accountId: String
+  amount: Float
+  category: String
+  categoryId: String
+  currency: String
+  date: DateTime
+  id: String!
+  reference: String
+}
+
 type User {
   email: String!
   id: Int!
   name: String
-  posts: [Post!]!
 }
 
 input UserCreateInput {

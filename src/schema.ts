@@ -19,8 +19,77 @@ const Query = objectType({
   definition(t) {
     t.nonNull.list.nonNull.field('allUsers', {
       type: 'User',
-      resolve: (_parent, _args, context: Context) => {
-        return context.prisma.user.findMany()
+      args: {
+        nameFilter: stringArg(),
+        skip: intArg(),   // 1
+        take: intArg(),   // 1
+      },
+      resolve: (_parent, args, context: Context) => {
+        const where = args.nameFilter
+            ? {
+              OR: [
+                { name: { contains: args.nameFilter } }
+              ],
+            }
+            : {};
+        return context.prisma.user.findMany({
+          where,
+            skip: args?.skip as number | undefined,    // 2
+            take: args?.take as number | undefined,    // 2
+      })
+      },
+    })
+
+    t.nonNull.list.nonNull.field('allTransactions', {
+      type: 'Transaction',
+      args: {
+        searchAll: stringArg(),
+        skip: intArg(),   // 1
+        take: intArg(),   // 1
+      },
+      resolve: (_parent, args, context: Context) => {
+        const where = args.searchAll
+            ? {
+              OR: [
+                { accountId: { contains: args.searchAll } },
+                { reference: { contains: args.searchAll } },
+                { category: { contains: args.searchAll } },
+              ],
+            }
+            : {};
+        return context.prisma.transaction.findMany({
+          where,
+          skip: args?.skip as number | undefined,    // 2
+          take: args?.take as number | undefined,    // 2
+        })
+      },
+    })
+
+    t.nonNull.list.nonNull.field('allCategories', {
+      type: 'Category',
+      args: {
+        skip: intArg(),   // 1
+        take: intArg(),   // 1
+      },
+      resolve: (_parent, args, context: Context) => {
+        return context.prisma.category.findMany({
+          skip: args?.skip as number | undefined,    // 2
+          take: args?.take as number | undefined,    // 2
+        })
+      },
+    })
+
+    t.nonNull.list.nonNull.field('allAccounts', {
+      type: 'Account',
+      args: {
+        skip: intArg(),   // 1
+        take: intArg(),   // 1
+      },
+      resolve: (_parent, args, context: Context) => {
+        return context.prisma.account.findMany({
+          skip: args?.skip as number | undefined,    // 2
+          take: args?.take as number | undefined,    // 2
+        })
       },
     })
 
@@ -208,16 +277,6 @@ const User = objectType({
     t.nonNull.int('id')
     t.string('name')
     t.nonNull.string('email')
-    t.nonNull.list.nonNull.field('posts', {
-      type: 'Post',
-      resolve: (parent, _, context: Context) => {
-        return context.prisma.user
-          .findUnique({
-            where: { id: parent.id || undefined },
-          })
-          .posts()
-      },
-    })
   },
 })
 
@@ -281,12 +340,48 @@ const UserCreateInput = inputObjectType({
   },
 })
 
+const Account = objectType({
+  name: 'Account',
+  definition(t) {
+    t.nonNull.string('id')
+    t.string('name')
+    t.string('bank')
+  },
+})
+
+const Transaction = objectType({
+  name: 'Transaction',
+  definition(t) {
+    t.nonNull.string('id')
+    t.string('accountId')
+    t.string('categoryId')
+    t.string('category')
+    t.string('reference')
+    t.float('amount')
+    t.string('currency')
+    t.date('date')
+  },
+})
+
+const Category = objectType({
+  name: 'Category',
+  definition(t) {
+    t.nonNull.string('id')
+    t.string('name')
+    t.string('color')
+  },
+})
+
+
 export const schema = makeSchema({
   types: [
     Query,
     Mutation,
     Post,
     User,
+    Category,
+    Account,
+    Transaction,
     UserUniqueInput,
     UserCreateInput,
     PostCreateInput,

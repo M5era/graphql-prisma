@@ -1,5 +1,21 @@
 # GraphQL Server Example
 
+Setup Prisma:
+```
+npm install @prisma/client
+npx prisma db push
+(npx prisma db pull or npx db generate)
+```
+Run Code in index.ts:
+```
+npx ts-node index.ts
+```
+Seed database:
+```
+npx prisma db seed
+```
+
+
 This example shows how to implement a **GraphQL server with TypeScript** with the following stack:
 
 - [**Apollo Server**](https://github.com/apollographql/apollo-server): HTTP server for GraphQL APIs   
